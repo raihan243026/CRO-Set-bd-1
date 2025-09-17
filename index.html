@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>সেটের কম্পিউটার রূপান্তর: একটি ইন্টারেক্টিভ এক্সপ্লোরার</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Warm Neutral with Muted Blue Accent -->
+    <!-- Application Structure Plan: The application is structured into thematic sections to guide the user through a learning journey. It starts with a brief introduction, then moves to a core interactive module with tabs for "Bit String" and "Linked List". This tabbed approach allows users to focus on one concept at a time without overwhelming scrolling. Each tab contains an explanation, an interactive visualization, and a summary of pros and cons. The application concludes with a side-by-side comparison table. This structure was chosen over a simple linear document to enhance engagement and comprehension by allowing hands-on, focused exploration of each concept before summarizing and comparing them. -->
+    <!-- Visualization & Content Choices: 1. Bit String: Report info is the mapping of a set to a bit vector. Goal is to demonstrate this mapping visually. A series of checkboxes and styled divs are used. Interaction involves checking/unchecking boxes, which triggers a JS function to update the divs' colors and text, providing immediate feedback. This makes the abstract concept concrete. Method: Vanilla JS + HTML/Tailwind. 2. Linked List: Report info is the node-pointer structure. Goal is to show how this structure is built dynamically. An input field and button are used to add nodes. Interaction is adding elements, which triggers JS to dynamically create and append styled divs representing nodes and arrows. This visualizes the dynamic nature of the list. Method: Vanilla JS + HTML/Tailwind. 3. Comparison Table: Report info is the pros/cons. Goal is to provide a quick, summarized comparison. A static HTML table is used. Justification: This is the clearest format for direct comparison. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+        }
+        .tab-active {
+            border-color: #3b82f6;
+            background-color: #3b82f6;
+            color: white;
+        }
+        .bit-box {
+            transition: all 0.3s ease-in-out;
+        }
+        .node {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-600">সেটের কম্পিউটার রূপান্তর</h1>
+            <p class="mt-2 text-lg text-stone-600">ডেটা স্ট্রাকচারে সেটের দুটি উপস্থাপনা পদ্ধতির একটি ইন্টারেক্টিভ এক্সপ্লোরার</p>
+        </header>
+
+        <main>
+            <section id="introduction" class="bg-white p-6 rounded-lg shadow-md mb-8">
+                <h2 class="text-2xl font-semibold text-stone-800 mb-3">ভূমিকা</h2>
+                <p class="text-stone-700 leading-relaxed">
+                    কম্পিউটার বিজ্ঞানে, একটি সেট হলো স্বতন্ত্র উপাদানের একটি সংগ্রহ। কম্পিউটারে এই সেটগুলিকে কার্যকরভাবে সংরক্ষণ এবং পরিচালনা করার জন্য বিভিন্ন ডেটা স্ট্রাকচার ব্যবহার করা হয়। এই অ্যাপ্লিকেশনটি আপনাকে দুটি প্রচলিত পদ্ধতি - বিট স্ট্রিং এবং লিঙ্কড লিস্ট - কীভাবে কাজ করে তা ইন্টারেক্টিভভাবে অন্বেষণ করতে সাহায্য করবে। নিচের ট্যাব থেকে যেকোনো একটি পদ্ধতি বেছে নিয়ে তার কার্যকারিতা পরীক্ষা করে দেখুন।
+                </p>
+            </section>
+            
+            <section id="interactive-explorer" class="bg-white p-6 rounded-lg shadow-md">
+                <div class="mb-6 border-b border-stone-200">
+                    <nav class="flex space-x-2" aria-label="Tabs">
+                        <button id="tab-bit-string" onclick="switchView('bit-string')" class="tab-button tab-active px-4 py-2 text-sm sm:text-base font-medium rounded-t-lg border-b-2">
+                            বিট স্ট্রিং পদ্ধতি
+                        </button>
+                        <button id="tab-linked-list" onclick="switchView('linked-list')" class="tab-button px-4 py-2 text-sm sm:text-base font-medium rounded-t-lg border-b-2 border-transparent text-stone-500 hover:text-blue-600 hover:border-blue-300">
+                            লিঙ্কড লিস্ট পদ্ধতি
+                        </button>
+                    </nav>
+                </div>
+
+                <div id="view-bit-string">
+                    <h3 class="text-xl font-semibold text-stone-800 mb-2">১. বিট স্ট্রিং (বা বিট ভেক্টর)</h3>
+                    <p class="text-stone-700 mb-6">
+                        এই পদ্ধতিটি তখন ব্যবহৃত হয় যখন সার্বিক সেট (Universal Set) ছোট এবং নির্দিষ্ট থাকে। এখানে, প্রতিটি উপাদানের জন্য একটি বিট (0 বা 1) ব্যবহার করা হয়। উপাদানটি সেটে উপস্থিত থাকলে বিট `1` এবং অনুপস্থিত থাকলে `0` হয়। সার্বিক সেট $U = \{1, 2, ..., 10\}$ এর জন্য নিচের চেকবক্সগুলো ব্যবহার করে আপনার সেট তৈরি করুন এবং দেখুন কিভাবে বিট স্ট্রিং পরিবর্তিত হয়।
+                    </p>
+                    
+                    <div class="bg-stone-100 p-4 rounded-lg">
+                        <div class="mb-4">
+                            <h4 class="font-semibold mb-2">আপনার সেট ($A$) নির্বাচন করুন:</h4>
+                            <div id="checkbox-container" class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-semibold mb-2">ফলাফল (বিট স্ট্রিং):</h4>
+                            <div class="flex flex-col items-center">
+                                <div id="bit-string-visual" class="flex flex-wrap justify-center gap-1 mb-2">
+                                </div>
+                                <p id="bit-string-text" class="text-lg font-mono bg-stone-200 text-stone-800 px-3 py-1 rounded w-full text-center tracking-widest"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 grid md:grid-cols-2 gap-4">
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                            <h4 class="font-bold text-green-800">সুবিধা</h4>
+                            <ul class="list-disc list-inside mt-2 text-green-700">
+                                <li>ইউনিয়ন, ইন্টারসেকশন ইত্যাদি অপারেশন খুব দ্রুত হয়।</li>
+                                <li>বাস্তবায়ন করা তুলনামূলকভাবে সহজ।</li>
+                            </ul>
+                        </div>
+                        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                            <h4 class="font-bold text-red-800">অসুবিধা</h4>
+                            <ul class="list-disc list-inside mt-2 text-red-700">
+                                <li>ছোট এবং নির্দিষ্ট সার্বিক সেটের প্রয়োজন।</li>
+                                <li>বড় বা স্পার্স সেটের জন্য অনেক মেমরি নষ্ট হয়।</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-linked-list" class="hidden">
+                     <h3 class="text-xl font-semibold text-stone-800 mb-2">২. লিঙ্কড লিস্ট</h3>
+                    <p class="text-stone-700 mb-6">
+                        যখন সেটের আকার পরিবর্তনশীল বা সার্বিক সেট অনেক বড় হয়, তখন লিঙ্কড লিস্ট ব্যবহার করা হয়। এখানে, প্রতিটি উপাদান একটি 'নোড'-এ সংরক্ষিত থাকে এবং নোডগুলো পয়েন্টারের মাধ্যমে একে অপরের সাথে সংযুক্ত থাকে। নিচের ইনপুট ফিল্ড ব্যবহার করে আপনার সেটে নতুন উপাদান যোগ করুন এবং দেখুন কিভাবে লিঙ্কড লিস্ট তৈরি হয়।
+                    </p>
+
+                    <div class="bg-stone-100 p-4 rounded-lg">
+                        <div class="mb-4 flex items-center space-x-2">
+                            <input type="number" id="ll-input" placeholder="সংখ্যা যোগ করুন" class="block w-full sm:w-1/3 rounded-md border-stone-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <button onclick="addElementToLinkedList()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">যোগ করুন</button>
+                            <button onclick="clearLinkedList()" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition">মুছে ফেলুন</button>
+                        </div>
+
+                        <div>
+                            <h4 class="font-semibold mb-3">ফলাফল (লিঙ্কড লিস্ট):</h4>
+                            <div id="linked-list-visual" class="flex flex-wrap items-center gap-x-2 gap-y-4 p-4 min-h-[60px] bg-white rounded border border-stone-200">
+                                <p id="ll-placeholder" class="text-stone-500">আপনার লিস্ট এখানে প্রদর্শিত হবে...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                     <div class="mt-6 grid md:grid-cols-2 gap-4">
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                            <h4 class="font-bold text-green-800">সুবিধা</h4>
+                            <ul class="list-disc list-inside mt-2 text-green-700">
+                                <li>সেটের আকার প্রয়োজন অনুযায়ী বাড়ানো বা কমানো যায়।</li>
+                                <li>স্পার্স সেটের জন্য মেমরি সাশ্রয়ী।</li>
+                            </ul>
+                        </div>
+                        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                            <h4 class="font-bold text-red-800">অসুবিধা</h4>
+                            <ul class="list-disc list-inside mt-2 text-red-700">
+                                <li>কিছু অপারেশনে বেশি সময় লাগে।</li>
+                                <li>পয়েন্টার সংরক্ষণের জন্য অতিরিক্ত মেমরি প্রয়োজন।</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="summary" class="mt-8">
+                <h2 class="text-2xl font-semibold text-stone-800 mb-4 text-center">তুলনামূলক আলোচনা</h2>
+                <div class="overflow-x-auto bg-white p-4 rounded-lg shadow-md">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="border-b-2 border-stone-200 p-4 text-stone-600 font-bold">বৈশিষ্ট্য</th>
+                                <th class="border-b-2 border-stone-200 p-4 text-stone-600 font-bold">বিট স্ট্রিং</th>
+                                <th class="border-b-2 border-stone-200 p-4 text-stone-600 font-bold">লিঙ্কড লিস্ট</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hover:bg-stone-50">
+                                <td class="p-4 border-b border-stone-200 font-medium">মেমরি ব্যবহার</td>
+                                <td class="p-4 border-b border-stone-200">ঘন সেটের জন্য দক্ষ, কিন্তু স্পার্স সেটের জন্য অদক্ষ।</td>
+                                <td class="p-4 border-b border-stone-200">স্পার্স সেটের জন্য দক্ষ, কারণ শুধুমাত্র বিদ্যমান উপাদান সংরক্ষণ করে।</td>
+                            </tr>
+                            <tr class="hover:bg-stone-50">
+                                <td class="p-4 border-b border-stone-200 font-medium">অপারেশনের গতি</td>
+                                <td class="p-4 border-b border-stone-200">ইউনিয়ন, ইন্টারসেকশনের মতো সেট অপারেশনগুলো খুব দ্রুত হয়।</td>
+                                <td class="p-4 border-b border-stone-200">উপাদান খোঁজা বা যোগ করার জন্য তালিকা অতিক্রম করতে হতে পারে।</td>
+                            </tr>
+                            <tr class="hover:bg-stone-50">
+                                <td class="p-4 border-b border-stone-200 font-medium">নমনীয়তা</td>
+                                <td class="p-4 border-b border-stone-200">অ-নমনীয়; সার্বিক সেট আগে থেকে নির্দিষ্ট থাকতে হয়।</td>
+                                <td class="p-4 border-b border-stone-200">অত্যন্ত নমনীয়; সেটের আকার গতিশীলভাবে পরিবর্তিত হতে পারে।</td>
+                            </tr>
+                             <tr class="hover:bg-stone-50">
+                                <td class="p-4 font-medium">কখন ব্যবহার করবেন</td>
+                                <td class="p-4">যখন সার্বিক সেট ছোট এবং ঘন সেট নিয়ে কাজ করতে হয়।</td>
+                                <td class="p-4">যখন সেটের আকার অজানা বা খুব বড় এবং স্পার্স হয়।</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center mt-10 py-4 border-t border-stone-200">
+            <p class="text-sm text-stone-500">&copy; ২০২৫ | ডেটা স্ট্রাকচার লার্নিং টুল</p>
+        </footer>
+    </div>
+
+    <script>
+        const universalSetSize = 10;
+        const bitStringState = new Array(universalSetSize).fill(0);
+        let linkedListState = [];
+
+        const checkboxContainer = document.getElementById('checkbox-container');
+        const bitStringVisual = document.getElementById('bit-string-visual');
+        const bitStringText = document.getElementById('bit-string-text');
+        
+        const linkedListVisual = document.getElementById('linked-list-visual');
+        const llInput = document.getElementById('ll-input');
+        const llPlaceholder = document.getElementById('ll-placeholder');
+
+        function switchView(view) {
+            const bitStringView = document.getElementById('view-bit-string');
+            const linkedListView = document.getElementById('view-linked-list');
+            const bitStringTab = document.getElementById('tab-bit-string');
+            const linkedListTab = document.getElementById('tab-linked-list');
+
+            if (view === 'bit-string') {
+                bitStringView.classList.remove('hidden');
+                linkedListView.classList.add('hidden');
+                bitStringTab.classList.add('tab-active');
+                linkedListTab.classList.remove('tab-active');
+            } else {
+                bitStringView.classList.add('hidden');
+                linkedListView.classList.remove('hidden');
+                bitStringTab.classList.remove('tab-active');
+                linkedListTab.classList.add('tab-active');
+            }
+        }
+
+        function updateBitStringView() {
+            bitStringVisual.innerHTML = '';
+            for (let i = 0; i < universalSetSize; i++) {
+                const isSet = bitStringState[i] === 1;
+                const bitBox = document.createElement('div');
+                bitBox.className = `bit-box w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded font-mono text-lg ${isSet ? 'bg-blue-500 text-white' : 'bg-stone-200 text-stone-600'}`;
+                bitBox.textContent = bitStringState[i];
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex flex-col items-center';
+                const label = document.createElement('span');
+                label.className = 'text-xs text-stone-500 mb-1';
+                label.textContent = i + 1;
+                wrapper.appendChild(label);
+                wrapper.appendChild(bitBox);
+
+                bitStringVisual.appendChild(wrapper);
+            }
+            bitStringText.textContent = bitStringState.join('');
+        }
+
+        function handleCheckboxChange(index, isChecked) {
+            bitStringState[index] = isChecked ? 1 : 0;
+            updateBitStringView();
+        }
+
+        function initializeBitString() {
+            for (let i = 0; i < universalSetSize; i++) {
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'flex items-center justify-center';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `cb-${i}`;
+                checkbox.className = 'h-4 w-4 rounded border-stone-300 text-blue-600 focus:ring-blue-500';
+                checkbox.onchange = (e) => handleCheckboxChange(i, e.target.checked);
+                
+                const label = document.createElement('label');
+                label.htmlFor = `cb-${i}`;
+                label.textContent = i + 1;
+                label.className = 'ml-2 text-sm text-stone-700';
+
+                checkboxDiv.appendChild(checkbox);
+                checkboxDiv.appendChild(label);
+                checkboxContainer.appendChild(checkboxDiv);
+            }
+            updateBitStringView();
+        }
+
+        function updateLinkedListView() {
+            linkedListVisual.innerHTML = '';
+            if (linkedListState.length === 0) {
+                 linkedListVisual.appendChild(llPlaceholder);
+                 llPlaceholder.classList.remove('hidden');
+                 return;
+            }
+            
+            llPlaceholder.classList.add('hidden');
+
+            linkedListState.forEach((val, index) => {
+                const node = document.createElement('div');
+                node.className = 'node bg-blue-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shadow';
+                node.textContent = val;
+                linkedListVisual.appendChild(node);
+
+                if (index < linkedListState.length - 1) {
+                    const arrow = document.createElement('div');
+                    arrow.className = 'text-2xl font-light text-stone-400';
+                    arrow.innerHTML = '&#8594;';
+                    linkedListVisual.appendChild(arrow);
+                }
+            });
+            const nullNode = document.createElement('div');
+            nullNode.className = 'node bg-stone-400 text-white px-3 py-1 rounded-md text-sm font-semibold';
+            nullNode.textContent = 'NULL';
+            
+            if (linkedListState.length > 0) {
+                 const arrow = document.createElement('div');
+                 arrow.className = 'text-2xl font-light text-stone-400';
+                 arrow.innerHTML = '&#8594;';
+                 linkedListVisual.appendChild(arrow);
+            }
+
+            linkedListVisual.appendChild(nullNode);
+        }
+
+        function addElementToLinkedList() {
+            const value = llInput.value;
+            if (value && !linkedListState.includes(value)) {
+                linkedListState.push(value);
+                updateLinkedListView();
+                llInput.value = '';
+            }
+            llInput.focus();
+        }
+
+        function clearLinkedList() {
+            linkedListState = [];
+            updateLinkedListView();
+        }
+        
+        llInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                addElementToLinkedList();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeBitString();
+            updateLinkedListView();
+        });
+    </script>
+</body>
+</html>
